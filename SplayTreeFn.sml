@@ -15,6 +15,11 @@ type Tree = Key.t tree
 
 datatype Side = LEFT | RIGHT
 
+fun CreateLeaf v = Node{
+      value = v,
+      child = (NIL, NIL)
+    }
+
 fun OtherSide LEFT = RIGHT
   | OtherSide RIGHT = LEFT
 
@@ -128,10 +133,7 @@ in
   Splay' root
 end
 
-fun Insert' NIL v = Node{
-      value = v,
-      child = (NIL, NIL)
-    }
+fun Insert' NIL v = CreateLeaf v
   | Insert' (node as Node{value,child}) v =
     (case (Key.Compare v value) of
          (* NOTE: Update value due to implementation of map on splay *)
@@ -165,10 +167,5 @@ fun Equals NIL NIL = true
     (Key.Compare v v')= EQUAL andalso
     (Equals (GetChild a LEFT) (GetChild b LEFT)) andalso
     (Equals (GetChild a RIGHT) (GetChild b RIGHT))
-
-fun CreateLeaf v = Node{
-      value = v,
-      child = (NIL, NIL)
-    }
 
 end
