@@ -85,7 +85,7 @@ val _ = AddTest
             )
 
 val _ = AddTest
-            (BuildTestName "NotEqual1")
+            (BuildTestName "NotEqual-1")
             (fn () => let
                val a = n{
                      value = 0,
