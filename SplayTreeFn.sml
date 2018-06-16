@@ -166,4 +166,9 @@ fun Equals NIL NIL = true
     (Equals (GetChild a LEFT) (GetChild b LEFT)) andalso
     (Equals (GetChild a RIGHT) (GetChild b RIGHT))
 
+fun CreateLeaf v = Node{
+      value = v,
+      child = (NIL, NIL)
+    }
+
 end

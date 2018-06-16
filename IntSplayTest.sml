@@ -115,4 +115,74 @@ val _ = AddTest
              end
             )
 
+val _ = AddTest
+            (BuildTestName "Left-Rotate")
+            (fn () => let
+               val a = n{
+                     value = 0,
+                     child = (
+                       (CreateLeaf 1),
+                       n{
+                         value = 2,
+                         child = (
+                           (CreateLeaf 3),
+                           (CreateLeaf 4)
+                         )
+                       }
+                     )
+                   }
+               val b = Rotate a LEFT
+               val expected = n{
+                     value = 2,
+                     child = (
+                       n{
+                         value = 0,
+                         child = (
+                           (CreateLeaf 1),
+                           (CreateLeaf 3)
+                         )
+                       },
+                       (CreateLeaf 4)
+                     )
+                   }
+             in
+               AssertTrue (Equals b expected) "failed"
+             end
+            )
+
+val _ = AddTest
+             (BuildTestName "Right-Rotate")
+             (fn () => let
+                val a = n{
+                      value = 0,
+                      child = (
+                        n{
+                          value = 1,
+                          child = (
+                            (CreateLeaf 2),
+                            (CreateLeaf 3)
+                          )
+                        },
+                        (CreateLeaf 4)
+                      )
+                    }
+                val b = Rotate a RIGHT
+                val expected = n{
+                      value = 1,
+                      child = (
+                        (CreateLeaf 2),
+                        n{
+                          value = 0,
+                          child = (
+                            (CreateLeaf 3),
+                            (CreateLeaf 4)
+                          )
+                        }
+                      )
+                    }
+              in
+                AssertTrue (Equals b expected) "failed"
+              end
+             )
+
 end
