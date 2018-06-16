@@ -107,7 +107,6 @@ fun Splay (root : Tree) (v : Key.t) = let
                           val son' = SetChild son side a'
                           val node' = SetChild node side son'
                         in
-                          (*print ("zig: " ^ (Key.toString value') ^ "\n");*)
                           Rotate (Rotate node' (OtherSide side)) (OtherSide side)
                         end
                      )
@@ -158,5 +157,13 @@ fun Contains NIL _ = false
 fun GetHeight NIL = 0
   | GetHeight (Node{child=(a,b),...}) =
     1 + (Int.max ((GetHeight a), (GetHeight b)))
+
+fun Equals NIL NIL = true
+  | Equals NIL (Node{...}) = false
+  | Equals (Node{...}) NIL = false
+  | Equals (a as Node{value=v,...}) (b as Node{value=v',...}) =
+    (Key.Compare v v')= EQUAL andalso
+    (Equals (GetChild a LEFT) (GetChild b LEFT)) andalso
+    (Equals (GetChild a RIGHT) (GetChild b RIGHT))
 
 end
