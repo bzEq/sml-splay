@@ -133,22 +133,27 @@ in
   Splay' root
 end
 
-fun Insert' NIL v = CreateLeaf v
-  | Insert' (node as Node{value,child}) v =
+fun Insert' NIL v _ = CreateLeaf v
+  | Insert' (node as Node{value,child}) v {upsert=upsert} =
     (case (Key.Compare v value) of
          (* NOTE: Update value due to implementation of map on splay *)
-         EQUAL => Node {
-                   value = v,
-                   child = child
-                 }
+         EQUAL => if upsert then
+                    Node {
+                      value = v,
+                      child = child
+                    }
+                  else
+                    node
        | ord => let
          val side = GetSideViaOrder ord
        in
-         SetChild node side (Insert' (GetChild node side) v)
+         SetChild node side (Insert' (GetChild node side) v {upsert=upsert})
        end
     )
 
-fun Insert root v = Splay (Insert' root v)
+fun Insert root v = Splay (Insert' root v {upsert=false})
+
+fun Upsert root v = Splay (Insert' root v {upsert=true})
 
 fun Contains NIL _ = false
   | Contains (root as Node{...}) v =
