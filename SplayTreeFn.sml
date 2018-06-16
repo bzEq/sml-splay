@@ -150,9 +150,9 @@ fun Insert' NIL v _ = CreateLeaf v
        end
     )
 
-fun Insert root v = Splay (Insert' root v {upsert=false})
+fun Insert root v : Tree = Splay (Insert' root v {upsert=false}) v
 
-fun Upsert root v = Splay (Insert' root v {upsert=true})
+fun Upsert root v : Tree = Splay (Insert' root v {upsert=true}) v
 
 fun Contains NIL _ = false
   | Contains (root as Node{...}) v =
@@ -163,6 +163,10 @@ fun Contains NIL _ = false
 fun GetHeight NIL = 0
   | GetHeight (Node{child=(a,b),...}) =
     1 + (Int.max ((GetHeight a), (GetHeight b)))
+
+fun Count NIL = 0
+  | Count (Node{child=(a,b),...}) =
+    1 + (Count a) + (Count b)
 
 fun Equals NIL NIL = true
   | Equals NIL (Node{...}) = false

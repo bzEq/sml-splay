@@ -261,4 +261,55 @@ val _ = AddTest
            end
           )
 
+val _ = AddTest
+          (BuildTestName "Count")
+          (fn () => let
+             val a = n{
+                   value = 0,
+                   child = (
+                     NIL,
+                     n{
+                       value = 1,
+                       child = (
+                         (CreateLeaf 2),
+                         (CreateLeaf 3)
+                       )
+                     }
+                   )
+                 }
+           in
+             EXPECT_TRUE ((Count a) = 4) "failed"
+           end
+          )
+
+val _ = AddTest
+      (BuildTestName "InsertAndCount")
+      (fn () => let
+         val total = 1048576
+         val i = ref 0
+         val root = ref NIL
+       in
+         while !i < total do (
+           root := Insert (!root) (!i);
+           i := (!i) + 1
+         );
+         EXPECT_TRUE ((Count (!root)) = total) "failed"
+       end
+      )
+
+val _ = AddTest
+      (BuildTestName "UpsertAndCount")
+      (fn () => let
+         val total = 1048576
+         val i = ref 0
+         val root = ref NIL
+       in
+         while !i < total do (
+           root := Upsert (!root) (!i);
+           i := (!i) + 1
+         );
+         EXPECT_TRUE ((Count (!root)) = total) "failed"
+       end
+      )
+
 end
