@@ -4,7 +4,7 @@ structure IntSplayTest = struct
 open IntSplay
 open SMLUnit
 
-val n = Node
+val n = Node (* For convenience *)
 
 fun BuildTestName name = "IntSplayTest:" ^ name
 
