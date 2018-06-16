@@ -136,7 +136,6 @@ end
 fun Insert' NIL v _ = CreateLeaf v
   | Insert' (node as Node{value,child}) v {upsert=upsert} =
     (case (Key.Compare v value) of
-         (* NOTE: Update value due to implementation of map on splay *)
          EQUAL => if upsert then
                     Node {
                       value = v,
