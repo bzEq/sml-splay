@@ -27,7 +27,7 @@ val _ = AddTest
                    }
                val b = a
              in
-               AssertTrue (Equals a b) "failed"
+               EXPECT_TRUE (Equals a b) "failed"
              end
             )
 
@@ -61,7 +61,7 @@ val _ = AddTest
                      )
                    }
              in
-               AssertTrue (Equals a b) "failed"
+               EXPECT_TRUE (Equals a b) "failed"
              end
             )
 
@@ -80,7 +80,7 @@ val _ = AddTest
                    }
                val b = NIL
              in
-               AssertTrue (not (Equals a b)) "failed"
+               EXPECT_TRUE (not (Equals a b)) "failed"
              end
             )
 
@@ -111,7 +111,7 @@ val _ = AddTest
                      )
                    }
              in
-               AssertTrue (not (Equals a b)) "failed"
+               EXPECT_TRUE (not (Equals a b)) "failed"
              end
             )
 
@@ -146,7 +146,7 @@ val _ = AddTest
                      )
                    }
              in
-               AssertTrue (Equals b expected) "failed"
+               EXPECT_TRUE (Equals b expected) "failed"
              end
             )
 
@@ -181,8 +181,84 @@ val _ = AddTest
                       )
                     }
               in
-                AssertTrue (Equals b expected) "failed"
+                EXPECT_TRUE (Equals b expected) "failed"
               end
              )
+
+val _ = AddTest
+          (BuildTestName "Rotate-All-Left")
+          (fn () => let
+             val a = n{
+                   value = 0,
+                   child = (
+                     NIL,
+                     n{
+                       value = 1,
+                       child = (
+                         NIL,
+                         (CreateLeaf 2)
+                       )
+                     }
+                   )
+                 }
+             val b = RotateAllToLeft a
+             val expected = n{
+                   value = 2,
+                   child = (
+                     n{
+                       value = 1,
+                       child = (
+                         (CreateLeaf 0),
+                         NIL
+                       )
+                     },
+                     NIL
+                   )
+                 }
+           in
+             EXPECT_TRUE (Equals b expected) "failed"
+           end
+          )
+
+val _ = AddTest
+          (BuildTestName "Rotate-All-Left-1")
+          (fn () => let
+             val a = n{
+                   value = 0,
+                   child = (
+                     NIL,
+                     n{
+                       value = 1,
+                       child = (
+                         (CreateLeaf 2),
+                         (CreateLeaf 3)
+                       )
+                     }
+                   )
+                 }
+             val b = RotateAllToLeft a
+             val expected = n{
+                   value = 3,
+                   child = (
+                     n{
+                       value = 1,
+                       child = (
+                         n{
+                           value = 0,
+                           child = (
+                             NIL,
+                             (CreateLeaf 2)
+                           )
+                         },
+                         NIL
+                       )
+                     },
+                     NIL
+                   )
+                 }
+           in
+             EXPECT_TRUE (Equals b expected) "failed"
+           end
+          )
 
 end

@@ -3,11 +3,15 @@
 structure SMLUnit = struct
 
 exception Fail of string
+exception Unexpected of string
 
 fun println s = print (s ^ "\n")
 
-fun AssertTrue true _ = ()
-  | AssertTrue false message = raise (Fail message)
+fun ASSERT_TRUE true _ = ()
+  | ASSERT_TRUE false message = raise (Fail message)
+
+fun EXPECT_TRUE true _ = ()
+  | EXPECT_TRUE false message = raise (Unexpected message)
 
 type Test = {
   exec : unit -> unit,
@@ -32,13 +36,22 @@ in
   while !i < l do (
     let
       val t = List.nth (all , !i)
+      val ok = ref true
     in
       (#exec t) ()
-      handle (exc as (Fail message)) => (
-             println ((#desc t) ^ ": " ^ message);
-             raise exc
-      );
-      println ((#desc t) ^ " -> Ok");
+      handle (exc as (Fail message)) =>
+             (
+               println ((#desc t) ^ ": " ^ message);
+               raise exc
+             )
+           | (exc as (Unexpected message)) =>
+             (
+               ok := false
+             );
+      if !ok = true then
+        println ((#desc t) ^ " -> Ok")
+      else
+        println ((#desc t) ^ " -> Fail");
       i := (!i) + 1
     end
   )

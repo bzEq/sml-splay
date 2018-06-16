@@ -168,4 +168,23 @@ fun Equals NIL NIL = true
     (Equals (GetChild a LEFT) (GetChild b LEFT)) andalso
     (Equals (GetChild a RIGHT) (GetChild b RIGHT))
 
+fun RotateAllToLeft NIL = NIL
+  | RotateAllToLeft (node as Node{child=(_,NIL),...}) = node
+  | RotateAllToLeft (node as Node{child=(_,_),...}) =
+    RotateAllToLeft (Rotate node LEFT)
+
+fun Remove NIL _ = NIL
+  | Remove (root as Node{...}) (v : Key.t) =
+    (case (Splay root v) of
+         NIL => raise Unreachable
+      | (root' as Node{value,child=(a,b)}) =>
+        (case (Key.Compare v value) of
+             EQUAL =>
+             (case a of
+                  NIL => b
+                | Node{...} => SetChild (RotateAllToLeft a) RIGHT b
+             )
+           | _ => root'
+        )
+    )
 end
