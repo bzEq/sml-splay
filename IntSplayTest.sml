@@ -325,7 +325,8 @@ val _ = AddTest
              );
              i := 0;
              while !i < total do (
-               EXPECT_TRUE (Contains (!root) (!i)) ((Int.toString (!i)) ^ " is not in the tree");
+               EXPECT_TRUE (Contains (!root) (!i))
+                           ((Int.toString (!i)) ^ " is not in the tree");
                root := Splay (!root) (!i);
                i := (!i) + 1
              )
