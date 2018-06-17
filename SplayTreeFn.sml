@@ -107,19 +107,23 @@ fun Splay (root : Tree) (v : Key.t) = let
                      true => (* zigzig *)
                      (case (GetChild son side) of
                           NIL => Rotate node (OtherSide side)
-                        | Node{...} =>
-                          Splay'
-                            (Rotate
-                               (Rotate node (OtherSide side)) (OtherSide side))
+                        | n => let
+                          val a' = Splay' n
+                          val son' = SetChild son side a'
+                          val node' = SetChild node side son'
+                        in
+                          Rotate (Rotate node' (OtherSide side)) (OtherSide side)
+                        end
                      )
                    | false => (* zigzag *)
                      (case (GetChild son (OtherSide side)) of
                           NIL => Rotate node (OtherSide side)
-                        | Node{...} => let
-                          val son' = Rotate son side
+                        | n => let
+                          val b' = Splay' n
+                          val son' = Rotate (SetChild son (OtherSide side) b') side
                           val node' = SetChild node side son'
                         in
-                          Splay' (Rotate node' (OtherSide side))
+                          Rotate node' (OtherSide side)
                         end
                      )
                 )
@@ -147,9 +151,9 @@ fun Insert' NIL v _ = CreateLeaf v
        end
     )
 
-fun Insert root v : Tree = Insert' (Splay root v) v {upsert=false}
+fun Insert root v : Tree = Splay (Insert' root v {upsert=false}) v
 
-fun Upsert root v : Tree = Insert' (Splay root v) v {upsert=true}
+fun Upsert root v : Tree = Splay (Insert' root v {upsert=true}) v
 
 fun Contains NIL _ = false
   | Contains (root as Node{...}) v =
@@ -182,14 +186,14 @@ fun Remove NIL _ = NIL
   | Remove (root as Node{...}) (v : Key.t) =
     (case (Splay root v) of
          NIL => raise Unreachable
-      | (root' as Node{value,child=(a,b)}) =>
-        (case (Key.Compare v value) of
-             EQUAL =>
-             (case a of
-                  NIL => b
-                | Node{...} => SetChild (RotateAllToLeft a) RIGHT b
-             )
-           | _ => root'
-        )
+       | (root' as Node{value,child=(a,b)}) =>
+         (case (Key.Compare v value) of
+              EQUAL =>
+              (case a of
+                   NIL => b
+                 | Node{...} => SetChild (RotateAllToLeft a) RIGHT b
+              )
+            | _ => root'
+         )
     )
 end
