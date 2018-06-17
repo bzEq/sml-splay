@@ -147,9 +147,9 @@ fun Insert' NIL v _ = CreateLeaf v
        end
     )
 
-fun Insert root v : Tree = Splay (Insert' root v {upsert=false}) v
+fun Insert root v : Tree = Insert' (Splay root v) v {upsert=false}
 
-fun Upsert root v : Tree = Splay (Insert' root v {upsert=true}) v
+fun Upsert root v : Tree = Insert' (Splay root v) v {upsert=true}
 
 fun Contains NIL _ = false
   | Contains (root as Node{...}) v =
