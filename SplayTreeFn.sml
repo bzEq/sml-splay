@@ -107,7 +107,10 @@ fun Splay (root : Tree) (v : Key.t) = let
                      true => (* zigzig *)
                      (case (GetChild son side) of
                           NIL => Rotate node (OtherSide side)
-                        | Node{...} => Splay' (Rotate (Rotate node (OtherSide side)) (OtherSide side))
+                        | Node{...} =>
+                          Splay'
+                            (Rotate
+                               (Rotate node (OtherSide side)) (OtherSide side))
                      )
                    | false => (* zigzag *)
                      (case (GetChild son (OtherSide side)) of
