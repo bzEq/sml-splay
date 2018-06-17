@@ -20,7 +20,6 @@ in
   while !i < total do (
     n := Random.randInt rnd;
     set := IntSet.add (!set, !n);
-    EXPECT_TRUE (Option.isSome (IntSet.find (fn x => x = (!n)) (!set)));
     i := (!i) + 1
   )
 end
