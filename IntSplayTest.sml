@@ -573,7 +573,7 @@ val _ =
          val root = ref NIL
        in
          while !i < total do (
-           root := Insert (!root) (!i);
+           root := Insert'' (!root) (!i);
            i := (!i) + 1
          );
          i := 0;
