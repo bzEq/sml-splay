@@ -333,4 +333,44 @@ val _ = AddTest
            end
           )
 
+val _ = AddTest
+          (BuildTestName "ZigZag")
+          (fn () => let
+             val root = NIL
+             val root' = Insert (Insert (Insert root 2) 0) 1
+             val expected = n{
+                   value = 1,
+                   child = (
+                     CreateLeaf(0),
+                     CreateLeaf(2)
+                   )
+                 }
+           in
+             EXPECT_TRUE (Equals root' expected) "failed"
+           end
+          )
+
+val _ = AddTest
+          (BuildTestName "ZigZig")
+          (fn () => let
+             val root = NIL
+             val root' = Insert (Insert (Insert root 1) 0) 2
+             val expected = n{
+                   value = 2,
+                   child = (
+                     n{
+                       value = 1,
+                       child = (
+                         (CreateLeaf 0),
+                         NIL
+                       )
+                     },
+                     NIL
+                   )
+                 }
+           in
+             EXPECT_TRUE (Equals root' expected) "failed"
+           end
+          )
+
 end
