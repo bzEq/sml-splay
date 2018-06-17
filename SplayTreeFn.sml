@@ -2,6 +2,8 @@
 
 functor SplayTreeFn(Key : COMPARABLE) = struct
 
+open SMLUnit
+
 exception Unreachable
 
 datatype 'a tree =
@@ -15,6 +17,10 @@ type Tree = Key.t tree
 
 datatype Side = LEFT | RIGHT
 
+fun Count NIL = 0
+  | Count (Node{child=(a,b),...}) =
+    1 + (Count a) + (Count b)
+
 fun CreateLeaf v = Node{
       value = v,
       child = (NIL, NIL)
@@ -24,8 +30,16 @@ fun OtherSide LEFT = RIGHT
   | OtherSide RIGHT = LEFT
 
 fun GetChild NIL _ = NIL
-  | GetChild (node as Node{child=(a,_),...}) LEFT = a
-  | GetChild (node as Node{child=(_,b),...}) RIGHT = b
+  | GetChild (node as Node{child=(a,_),...}) LEFT : Tree = a
+  | GetChild (node as Node{child=(_,b),...}) RIGHT : Tree = b
+
+fun Equals NIL NIL = true
+  | Equals NIL (Node{...}) = false
+  | Equals (Node{...}) NIL = false
+  | Equals (a as Node{value=v,child=(a',a'')}) (b as Node{value=v',child=(b',b'')}) =
+    (Key.Compare v v')= EQUAL andalso
+    (Equals a' b') andalso
+    (Equals a'' b'')
 
 fun SetChild NIL _ _ = NIL
   | SetChild (node as Node{value=value,child=(_,b)}) LEFT a =
@@ -39,11 +53,74 @@ fun SetChild NIL _ _ = NIL
       child = (a, b)
     }
 
+fun GetHeight NIL = 0
+  | GetHeight (Node{child=(a,b),...}) =
+    1 + (Int.max ((GetHeight a), (GetHeight b)))
+
 fun IsZigZig LEFT LEFT = true
   | IsZigZig RIGHT RIGHT = true
   | IsZigZig _ _ = false
 
 fun IsZigZag a b = not (IsZigZig a b)
+
+fun CreateChild LEFT a b = (a, b)
+  | CreateChild RIGHT a b  = (b, a)
+
+fun ZigZig (root as Node{value,...} : Tree)
+           (son as Node{value=value',...} : Tree)
+           (grandson as Node{value=value'',...} : Tree)
+           (side : Side) = Node{
+      value = value'',
+      child =
+      (CreateChild
+         side
+         (GetChild grandson side)
+         (Node{
+             value = value',
+             child = (
+               CreateChild side
+                           (GetChild grandson (OtherSide side))
+                           (Node{
+                               value = value,
+                               child = (
+                                 CreateChild side
+                                             (GetChild son (OtherSide side))
+                                             (GetChild root (OtherSide side))
+                               )
+                           })
+             )
+         })
+      )
+    }
+  | ZigZig _ _ _ _ = raise Unreachable
+
+fun ZigZag (root as Node{value,...} : Tree)
+           (son as Node{value=value',...} : Tree)
+           (grandson as Node{value=value'',...} : Tree)
+           (side : Side) = Node{
+      value = value'',
+      child =
+      (CreateChild side
+                   (Node{
+                       value = value',
+                       child =
+                       (CreateChild side
+                                    (GetChild son side)
+                                    (GetChild grandson side)
+                       )
+                   })
+                   (Node{
+                       value = value,
+                       child =
+                       (CreateChild side
+                                    (GetChild grandson (OtherSide side))
+                                    (GetChild root (OtherSide side))
+                       )
+                   })
+
+      )
+    }
+  | ZigZag _ _ _ _ = raise Unreachable
 
 fun Rotate NIL _ = NIL
   | Rotate (
@@ -94,42 +171,33 @@ fun Splay (root : Tree) (v : Key.t) = let
     | Splay' (node as Node{value,...}) =
       (case (Key.Compare v value) of
            EQUAL => node
-         | ord => Zig node (GetSideViaOrder ord)
-      )
-  and Zig (node as Node{value,...}) (side : Side) =
-      (case (GetChild node side) of
-           NIL => node
-         | (son as Node{value=value',...}) =>
-           (case (Key.Compare v value') of
-                EQUAL => Rotate node (OtherSide side)
-              | ord =>
-                (case (IsZigZig (GetSideViaOrder ord) side) of
-                     true => (* zigzig *)
-                     (case (GetChild son side) of
-                          NIL => Rotate node (OtherSide side)
-                        | n => let
-                          val a' = Splay' n
-                          val son' = SetChild son side a'
-                          val node' = SetChild node side son'
-                        in
-                          Rotate (Rotate node' (OtherSide side)) (OtherSide side)
-                        end
-                     )
-                   | false => (* zigzag *)
-                     (case (GetChild son (OtherSide side)) of
-                          NIL => Rotate node (OtherSide side)
-                        | n => let
-                          val b' = Splay' n
-                          val son' = Rotate (SetChild son (OtherSide side) b') side
-                          val node' = SetChild node side son'
-                        in
-                          Rotate node' (OtherSide side)
-                        end
+         | ord => let
+           val side = GetSideViaOrder ord
+         in
+           (case (GetChild node side) of
+                NIL => node
+              | (son as Node{value=value',...}) =>
+                (case (Key.Compare v value') of
+                     EQUAL => Rotate node (OtherSide side)
+                   | ord =>
+                     (case (IsZigZig (GetSideViaOrder ord) side) of
+                          true => (* zigzig *)
+                          (case (GetChild son side) of
+                               NIL => Rotate node (OtherSide side)
+                             | n =>
+                               ZigZig node son (Splay' n) side
+                          )
+                        | false => (* zigzag *)
+                          (case (GetChild son (OtherSide side)) of
+                               NIL => Rotate node (OtherSide side)
+                             | n =>
+                               ZigZag node son (Splay' n) side
+                          )
                      )
                 )
            )
+         end
       )
-    | Zig NIL _ = raise Unreachable
 in
   Splay' root
 end
@@ -146,36 +214,21 @@ fun Insert' NIL v _ = CreateLeaf v
                     node
        | ord => let
          val side = GetSideViaOrder ord
+         val a = Insert' (GetChild node side) v {upsert=upsert}
        in
-         SetChild node side (Insert' (GetChild node side) v {upsert=upsert})
+         SetChild node side a
        end
     )
 
-fun Insert root v : Tree = Splay (Insert' root v {upsert=false}) v
+fun Insert root v : Tree = Splay (Insert' (Splay root v) v {upsert=false}) v
 
-fun Upsert root v : Tree = Splay (Insert' root v {upsert=true}) v
+fun Upsert root v : Tree = Splay (Insert' (Splay root v) v {upsert=true}) v
 
 fun Contains NIL _ = false
   | Contains (root as Node{...}) v =
     case (Splay root v) of
         NIL => raise Unreachable
       | (Node{value,...}) => (Key.Compare value v) = EQUAL
-
-fun GetHeight NIL = 0
-  | GetHeight (Node{child=(a,b),...}) =
-    1 + (Int.max ((GetHeight a), (GetHeight b)))
-
-fun Count NIL = 0
-  | Count (Node{child=(a,b),...}) =
-    1 + (Count a) + (Count b)
-
-fun Equals NIL NIL = true
-  | Equals NIL (Node{...}) = false
-  | Equals (Node{...}) NIL = false
-  | Equals (a as Node{value=v,...}) (b as Node{value=v',...}) =
-    (Key.Compare v v')= EQUAL andalso
-    (Equals (GetChild a LEFT) (GetChild b LEFT)) andalso
-    (Equals (GetChild a RIGHT) (GetChild b RIGHT))
 
 fun RotateAllToLeft NIL = NIL
   | RotateAllToLeft (node as Node{child=(_,NIL),...}) = node

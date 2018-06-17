@@ -467,6 +467,105 @@ val _ =
 
 val _ =
     AddTest
+      (BuildTestName "ZigZigInOne")
+      (fn () => let
+         val grandson = n{
+               value = 4,
+               child = (
+                 (CreateLeaf 5),
+                 (CreateLeaf 6)
+               )
+             }
+         val son = n{
+               value = 2,
+               child = (
+                 (CreateLeaf 3),
+                 grandson
+               )
+             }
+         val root = n{
+               value = 0,
+               child = (
+                 (CreateLeaf 1),
+                 son
+               )
+             }
+         val root' = ZigZig root son grandson RIGHT
+         val expected = n{
+               value = 4,
+               child = (
+                 n{
+                   value = 2,
+                   child = (
+                     n{
+                       value = 0,
+                       child = (
+                         (CreateLeaf 1),
+                         (CreateLeaf 3)
+                       )
+                     },
+                     (CreateLeaf 5)
+                   )
+                 },
+                 (CreateLeaf 6)
+               )
+             }
+       in
+         ASSERT_TRUE (Equals root' expected) "failed"
+       end
+      )
+
+val _ = AddTest
+          (BuildTestName "ZigZagInOne")
+          (fn () => let
+             val grandson = n{
+                   value = 4,
+                   child = (
+                     (CreateLeaf 5),
+                     (CreateLeaf 6)
+                   )
+                 }
+             val son = n{
+                   value = 1,
+                   child = (
+                     (CreateLeaf 3),
+                     grandson
+                   )
+                 }
+             val root = n{
+                   value = 0,
+                   child = (
+                     son,
+                     (CreateLeaf 2)
+                   )
+                 }
+             val root' = ZigZag root son grandson LEFT
+             val expected = n{
+                   value = 4,
+                   child = (
+                     n{
+                       value = 1,
+                       child = (
+                         (CreateLeaf 3),
+                         (CreateLeaf 5)
+                       )
+                     },
+                     n{
+                       value = 0,
+                       child = (
+                         (CreateLeaf 6),
+                         (CreateLeaf 2)
+                       )
+                     }
+                   )
+                 }
+           in
+             ASSERT_TRUE (Equals root' expected) "failed"
+           end
+          )
+
+val _ =
+    AddTest
       (BuildTestName "InsertAndCheckExistence")
       (fn () => let
          val total = 1048576

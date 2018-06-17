@@ -37,6 +37,7 @@ in
     let
       val t = List.nth (all , !i)
       val ok = ref true
+      val err = ref ""
     in
       println ("Running " ^ (#desc t));
       (#exec t) ()
@@ -47,12 +48,13 @@ in
              )
            | (exc as (Unexpected message)) =>
              (
-               ok := false
+               ok := false;
+               err := message
              );
       if !ok = true then
         println ((#desc t) ^ " -> Ok")
       else
-        println ((#desc t) ^ " -> Fail");
+        println ((#desc t) ^ " -> Fail with: " ^ (!err));
       i := (!i) + 1
     end
   )

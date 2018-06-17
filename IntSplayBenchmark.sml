@@ -14,7 +14,6 @@ in
   while !i < total do (
     n := Random.randInt rnd;
     root := Insert (!root) (!n);
-    EXPECT_TRUE (Contains (!root) (!n));
     i := (!i) + 1
   )
 end
