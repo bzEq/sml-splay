@@ -1,1 +1,6 @@
 *_test
+*_benchmark
+*.o
+*.a
+*.so
+mlmon.out
