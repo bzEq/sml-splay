@@ -15,7 +15,7 @@ fun run () = let
 in
   while !i < total do (
     n := Random.randInt rnd;
-    root := Insert (!root) (!n);
+    root := Insert'' (!root) (!n);
     i := (!i) + 1
   )
 end

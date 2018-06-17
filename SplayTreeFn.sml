@@ -220,9 +220,38 @@ fun Insert' NIL v _ = CreateLeaf v
        end
     )
 
-fun Insert root v : Tree = Splay (Insert' (Splay root v) v {upsert=false}) v
+(* Fast insertion *)
+fun Insert'' root v =
+    case (Splay root v) of
+        NIL => (CreateLeaf v)
+      | (root' as Node{value,child=(child as (a,b))}) =>
+        (case (Key.Compare v value) of
+             EQUAL => Node{
+                       value = v,
+                       child = child
+                     }
+           | LESS => (Node{
+                         value = v,
+                         child = (
+                           NIL,
+                           root'
+                         )
+                     })
+           | GREATER => (Node{
+                            value = v,
+                            child = (
+                              Node{
+                                value = value,
+                                child = (a, NIL)
+                              },
+                              b
+                            )
+                        })
+        )
 
-fun Upsert root v : Tree = Splay (Insert' (Splay root v) v {upsert=true}) v
+fun Insert root v = Splay (Insert' root v {upsert=false}) v
+
+fun Upsert root v = Splay (Insert' root v {upsert=true}) v
 
 fun Contains NIL _ = false
   | Contains (root as Node{...}) v =
