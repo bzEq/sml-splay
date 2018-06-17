@@ -1,20 +1,26 @@
 (* Copyright (c) 2018 Kai Luo <gluokai@gmail.com>. All rights reserved. *)
 
-open IntSplay
 open SMLUnit
 
 val total = 1048576
 
+structure IntSet = SplaySetFn(
+  struct
+  type ord_key = int
+  val compare = Int.compare
+  end
+)
+
 val _ = let
   val i = ref 0
   val n = ref 0
-  val root = ref NIL
+  val set = ref IntSet.empty
   val rnd = Random.rand (0, total)
 in
   while !i < total do (
     n := Random.randInt rnd;
-    root := Insert (!root) (!n);
-    EXPECT_TRUE (Contains (!root) (!n));
+    set := IntSet.add (!set, !n);
+    EXPECT_TRUE (Option.isSome (IntSet.find (fn x => x = (!n)) (!set)));
     i := (!i) + 1
   )
 end
