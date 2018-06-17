@@ -1,11 +1,13 @@
 (* Copyright (c) 2018 Kai Luo <gluokai@gmail.com>. All rights reserved. *)
 
+structure IntSplayBenchmark = struct
+
 open IntSplay
 open SMLUnit
 
 val total = 1048576
 
-val _ = let
+fun run () = let
   val i = ref 0
   val n = ref 0
   val root = ref NIL
@@ -16,4 +18,8 @@ in
     root := Insert (!root) (!n);
     i := (!i) + 1
   )
+end
+
+val _ = run ()
+
 end
