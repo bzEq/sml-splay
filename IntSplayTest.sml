@@ -8,6 +8,11 @@ val n = Node (* For convenience *)
 
 fun BuildTestName name = "IntSplayTest:" ^ name
 
+fun InsertSequence init sequence =
+    List.foldl (fn (v, tree) => Insert tree v)
+               init
+               sequence
+
 val _ = AddTest
           (BuildTestName "SelfEqual")
           (fn () => let
@@ -283,6 +288,140 @@ val _ = AddTest
           )
 
 val _ = AddTest
+          (BuildTestName "ShapeAfterInsert")
+          (fn () => let
+             val root = InsertSequence NIL [2, 0]
+             val expected = n{
+                   value = 0,
+                   child = (
+                     NIL,
+                     (CreateLeaf 2)
+                   )
+                 }
+           in
+             EXPECT_TRUE (Equals root expected) "failed"
+           end
+          )
+
+
+val _ = AddTest
+          (BuildTestName "ZigZag")
+          (fn () => let
+             val root = NIL
+             val root' = Insert (Insert (Insert root 2) 0) 1
+             val expected = n{
+                   value = 1,
+                   child = (
+                     CreateLeaf(0),
+                     CreateLeaf(2)
+                   )
+                 }
+           in
+             EXPECT_TRUE (Equals root' expected) "failed"
+           end
+          )
+
+val _ = AddTest
+          (BuildTestName "ZigZig")
+          (fn () => let
+             val root = NIL
+             val root' = Insert (Insert (Insert root 1) 0) 2
+             val expected = n{
+                   value = 2,
+                   child = (
+                     n{
+                       value = 1,
+                       child = (
+                         (CreateLeaf 0),
+                         NIL
+                       )
+                     },
+                     NIL
+                   )
+                 }
+           in
+             EXPECT_TRUE (Equals root' expected) "failed"
+           end
+          )
+
+val _ = AddTest
+          (BuildTestName "Splay")
+          (fn () => let
+             val root = InsertSequence NIL [1, 0, 2]
+             val expected = n{
+                   value = 2,
+                   child = (
+                     n{
+                       value = 1,
+                       child = (
+                         (CreateLeaf 0),
+                         NIL
+                       )
+                     },
+                     NIL
+                   )
+                 }
+           in
+             EXPECT_TRUE (Equals root expected) "failed"
+           end
+          )
+
+
+val _ = AddTest
+          (BuildTestName "Splay-1")
+          (fn () => let
+             val root = NIL
+             val sequence = [100, 50, 60, 70]
+             val root' = InsertSequence root sequence
+             val expected = n{
+                   value = 70,
+                   child = (
+                     n{
+                       value = 60,
+                       child = (
+                         (CreateLeaf 50),
+                         NIL
+                       )
+                     },
+                     (CreateLeaf 100)
+                   )
+                 }
+           in
+             EXPECT_TRUE (Equals root' expected) "failed"
+           end
+          )
+
+val _ = AddTest
+          (BuildTestName "Splay-2")
+          (fn () => let
+             val root = NIL
+             val sequence = [100, 50, 60, 70, 55]
+             val root' = InsertSequence root sequence
+             val expected = n{
+                   value = 55,
+                   child = (
+                     (CreateLeaf 50),
+                     n{
+                       value = 60,
+                       child = (
+                         NIL,
+                         n{
+                           value = 70,
+                           child = (
+                             NIL,
+                             (CreateLeaf 100)
+                           )
+                         }
+                       )
+                     }
+                   )
+                 }
+           in
+             EXPECT_TRUE (Equals root' expected) "failed"
+           end
+          )
+
+val _ = AddTest
           (BuildTestName "InsertAndCount")
           (fn () => let
              val total = 1048576
@@ -330,46 +469,6 @@ val _ = AddTest
                root := Splay (!root) (!i);
                i := (!i) + 1
              )
-           end
-          )
-
-val _ = AddTest
-          (BuildTestName "ZigZag")
-          (fn () => let
-             val root = NIL
-             val root' = Insert (Insert (Insert root 2) 0) 1
-             val expected = n{
-                   value = 1,
-                   child = (
-                     CreateLeaf(0),
-                     CreateLeaf(2)
-                   )
-                 }
-           in
-             EXPECT_TRUE (Equals root' expected) "failed"
-           end
-          )
-
-val _ = AddTest
-          (BuildTestName "ZigZig")
-          (fn () => let
-             val root = NIL
-             val root' = Insert (Insert (Insert root 1) 0) 2
-             val expected = n{
-                   value = 2,
-                   child = (
-                     n{
-                       value = 1,
-                       child = (
-                         (CreateLeaf 0),
-                         NIL
-                       )
-                     },
-                     NIL
-                   )
-                 }
-           in
-             EXPECT_TRUE (Equals root' expected) "failed"
            end
           )
 

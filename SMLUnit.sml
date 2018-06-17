@@ -38,6 +38,7 @@ in
       val t = List.nth (all , !i)
       val ok = ref true
     in
+      println ("Running " ^ (#desc t));
       (#exec t) ()
       handle (exc as (Fail message)) =>
              (
