@@ -586,4 +586,37 @@ val _ =
        end
       )
 
+structure IntSet = RedBlackSetFn(
+  struct
+  type ord_key = int
+  val compare = Int.compare
+  end
+)
+
+fun CreateRandomSet total = let
+  val rnd = Random.rand (0, total)
+  val set = ref IntSet.empty
+  val i = ref 0
+in
+  while !i < 0 do (
+    set := IntSet.add (!set, (Random.randInt rnd))
+  );
+  !set
+end
+
+val _ =
+    AddTest
+      (BuildTestName "UseStandardSetToValidate")
+      (fn () => let
+         val set = CreateRandomSet 1048576
+         val root = ref NIL
+       in
+         IntSet.app (fn x => root := Insert'' (!root) x) set;
+         IntSet.app (fn x => EXPECT_TRUE (Contains (!root) x)
+                                         ((Int.toString x) ^ " should be in the set")) set;
+         EXPECT_TRUE ((Count (!root)) = (IntSet.numItems set)) "size not match"
+       end
+      )
+
+
 end
