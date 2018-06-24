@@ -626,7 +626,12 @@ val _ =
          val root = ref NIL
        in
          IntSet.app (fn x => root := Insert'' (!root) x) set;
-         IntSet.app (fn x => root := Remove (!root) x) set;
+         IntSet.app (fn x =>
+                        (EXPECT_TRUE (not (IsEmpty (!root))) "should be empty";
+                         root := Remove (!root) x
+                        )
+                    )
+                    set;
          IntSet.app (fn x => EXPECT_TRUE (not (Contains (!root) x))
                                          ((Int.toString x) ^ " should not be in the set")) set;
          EXPECT_TRUE (IsEmpty (!root)) "should be empty"
