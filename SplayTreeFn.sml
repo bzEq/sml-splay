@@ -21,6 +21,9 @@ fun Count NIL = 0
   | Count (Node{child=(a,b),...}) =
     1 + (Count a) + (Count b)
 
+fun IsEmpty NIL = true
+  | IsEmpty _ = false
+
 fun CreateLeaf v = Node{
       value = v,
       child = (NIL, NIL)

@@ -618,4 +618,17 @@ val _ =
        end
       )
 
+val _ =
+    AddTest
+      (BuildTestName "RemoveAllAndGetNIL")
+      (fn () => let
+         val set = CreateRandomSet 1048576
+         val root = ref NIL
+       in
+         IntSet.app (fn x => root := Insert'' (!root) x) set;
+         IntSet.app (fn x => root := Remove (!root) x) set;
+         EXPECT_TRUE (IsEmpty (!root)) "should be empty"
+       end
+      )
+
 end
