@@ -627,7 +627,7 @@ val _ =
        in
          IntSet.app (fn x => root := Insert'' (!root) x) set;
          IntSet.app (fn x =>
-                        (EXPECT_TRUE (not (IsEmpty (!root))) "should be empty";
+                        (EXPECT_TRUE (not (IsEmpty (!root))) "should not be empty";
                          root := Remove (!root) x
                         )
                     )
